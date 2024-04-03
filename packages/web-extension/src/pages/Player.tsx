@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Replayer from 'rrweb-player';
+import { Replayer as ReplayerBase } from 'rrweb';
+import html2canvas from 'html2canvas';
 import {
   Box,
   Breadcrumb,
@@ -9,12 +11,19 @@ import {
   Center,
 } from '@chakra-ui/react';
 import { getEvents, getSession } from '~/utils/storage';
+import { documentNode } from '../../../rrweb-snapshot/src/types';
 
 export default function Player() {
   const playerElRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Replayer | null>(null);
   const { sessionId } = useParams();
   const [sessionName, setSessionName] = useState('');
+
+  // var body = $(iframe).contents().find('body')[0];
+  // html2canvas(body, {
+  //     onrendered: function( canvas ) {
+  //         $("#content").empty().append(canvas);
+  //     },
 
   useEffect(() => {
     if (!sessionId) return;
@@ -40,6 +49,18 @@ export default function Player() {
             events,
             autoPlay: true,
           },
+        });
+        // playerRef.current.addEventListener('mouse-interaction', (payload) => {
+        //   console.log(payload);
+        // });
+        // playerRef.current.console.log(playerRef.current.getReplayer());
+
+        const b = playerElRef.current.querySelector('.rr-player iframe');
+
+        console.log(b, b?.contentDocument?.body);
+
+        html2canvas(b).then((canvas) => {
+          document.body.appendChild(canvas);
         });
       })
       .catch((err) => {

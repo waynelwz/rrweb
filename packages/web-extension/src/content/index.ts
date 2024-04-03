@@ -25,17 +25,10 @@ void (() => {
         message: MessageName;
       }>,
     ) => {
+      // console.log('content message', event.data);
       if (event.source !== window) return;
-      if (event.data.message === MessageName.RecordScriptReady)
-        window.postMessage(
-          {
-            message: MessageName.StartRecord,
-            config: {
-              recordCrossOriginIframes: true,
-            },
-          },
-          location.origin,
-        );
+      // * note by lwz disable auto record
+      if (event.data.message === MessageName.RecordScriptReady) doRecord();
     },
   );
   if (isInCrossOriginIFrame()) {
@@ -43,6 +36,9 @@ void (() => {
   } else if (window === window.top) {
     void initMainPage();
   }
+  console.log('content init');
+  // * note by lwz auto inject when page loaded
+  startRecord();
 })();
 
 async function initMainPage() {
@@ -185,6 +181,18 @@ async function initCrossOriginIframe() {
     RecorderStatus.RECORDING
   )
     startRecord();
+}
+
+function doRecord() {
+  window.postMessage(
+    {
+      message: MessageName.StartRecord,
+      config: {
+        recordCrossOriginIframes: true,
+      },
+    },
+    location.origin,
+  );
 }
 
 function startRecord() {

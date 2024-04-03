@@ -39,9 +39,8 @@ export function App() {
     void Browser.storage.local.get(LocalDataKey.recorderStatus).then((data) => {
       const localData = data as LocalData;
       if (!localData || !localData[LocalDataKey.recorderStatus]) return;
-      const { status, startTimestamp, pausedTimestamp } = localData[
-        LocalDataKey.recorderStatus
-      ];
+      const { status, startTimestamp, pausedTimestamp } =
+        localData[LocalDataKey.recorderStatus];
       setStatus(status);
       if (startTimestamp && pausedTimestamp)
         setStartTime(Date.now() - pausedTimestamp + startTimestamp || 0);
@@ -93,6 +92,11 @@ export function App() {
                 : 'Stop Recording'
             }
             onClick={() => {
+              Browser.tabs.getAllInWindow(null, (tabs) => {
+                const tab = tabs.find((tab) => tab.active);
+                console.log(tabs, tab);
+              });
+
               if (status === RecorderStatus.RECORDING) {
                 // stop recording
                 setErrorMessage('');
@@ -129,9 +133,11 @@ export function App() {
                 // start recording
                 void channel.getCurrentTabId().then((tabId) => {
                   if (tabId === -1) return;
+                  console.log('tabId', tabId);
                   void channel
                     .requestToTab(tabId, ServiceName.StartRecord, {})
                     .then(async (res: RecordStartedMessage | undefined) => {
+                      console.log(res);
                       if (res) {
                         setStatus(RecorderStatus.RECORDING);
                         setStartTime(res.startTimestamp);
@@ -146,6 +152,7 @@ export function App() {
                       }
                     })
                     .catch((error: Error) => {
+                      console.log(error);
                       setErrorMessage(error.message);
                     });
                 });

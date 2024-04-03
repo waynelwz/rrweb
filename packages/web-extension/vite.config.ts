@@ -51,6 +51,7 @@ export default defineConfig({
   // Add the webExtension plugin
   plugins: [
     react(),
+    // @ts-ignore
     webExtension({
       // A function to generate manifest file dynamically.
       manifest: () => {

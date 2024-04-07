@@ -3,25 +3,32 @@
     "name": "rrweb",
     "content_scripts": [
       {
-        "matches": ["<all_urls>"],
-        "js": ["content/index.ts"],
+        "matches": [
+          "<all_urls>"
+        ],
+        "js": [
+          "content/index.ts"
+        ],
         "all_frames": true,
         "run_at": "document_idle"
       }
     ],
-    "icons": {
-      "16": "assets/icon16.png",
-      "48": "assets/icon48.png",
-      "128": "assets/icon128.png"
-    },
-    "permissions": ["activeTab", "tabs", "storage", "unlimitedStorage"]
+    "permissions": [
+      "activeTab",
+      "tabs",
+      "storage",
+      "unlimitedStorage",
+      "sidePanel"
+    ]
   },
   "v2": {
     "common": {
       "manifest_version": 2,
       "background": {
         "persistent": false,
-        "scripts": ["background/index.ts"]
+        "scripts": [
+          "background/index.ts"
+        ]
       },
       "browser_action": {
         "default_title": "rrweb extension",
@@ -33,9 +40,15 @@
         "open_in_tab": true,
         "chrome_style": false
       },
-      "web_accessible_resources": ["**/*.js"]
+      "web_accessible_resources": [
+        "**/*.js"
+      ]
     },
-    "chrome": {},
+    "chrome": {
+      "side_panel": {
+        "default_path": "panel/index.html"
+      }
+    },
     "firefox": {
       "browser_specific_settings": {
         "gecko": {
@@ -63,12 +76,20 @@
       },
       "web_accessible_resources": [
         {
-          "resources": ["**/*.js"],
-          "matches": ["<all_urls>"]
+          "resources": [
+            "**/*.js"
+          ],
+          "matches": [
+            "<all_urls>"
+          ]
         }
       ]
     },
-    "chrome": {},
+    "chrome": {
+      "side_panel": {
+        "default_path": "panel/index.html"
+      }
+    },
     "firefox": {}
   }
 }

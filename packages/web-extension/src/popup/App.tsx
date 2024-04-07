@@ -92,6 +92,7 @@ export function App() {
                 : 'Stop Recording'
             }
             onClick={() => {
+              // ！by lwz for test
               Browser.tabs.getAllInWindow(null, (tabs) => {
                 const tab = tabs.find((tab) => tab.active);
                 console.log(tabs, tab);

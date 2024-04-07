@@ -4,6 +4,24 @@ import type { eventWithTime } from '@rrweb/types';
 import { MessageName, RecordStartedMessage } from '~/types';
 import { isInCrossOriginIFrame } from '~/utils';
 
+const OPTIONS = {
+  // recordCanvas: true,
+  // inlineImages: true,
+  // inlineStylesheet: true,
+  sampling: {
+    // 不录制鼠标移动事件
+    mousemove: false,
+    // // 不录制鼠标交互事件
+    // mouseInteraction: false,
+    // // 设置滚动事件的触发频率
+    scroll: 150,
+    // // set the interval of media interaction event
+    // media: 800,
+    // 设置输入事件的录制时机
+    input: 'last', // 连续输入时，只录制最终值
+  },
+};
+
 /**
  * This script is injected into both main page and cross-origin IFrames through <script> tags.
  */
@@ -14,14 +32,22 @@ let stopFn: (() => void) | null = null;
 function startRecord(config: recordOptions<eventWithTime>) {
   events.length = 0;
   stopFn =
+    // @ts-ignore
     record({
       emit: (event) => {
+        // ! by lwz in case of too many events
+        if (events.length > 100) {
+          stopFn();
+        }
+
         events.push(event);
         postMessage({
           message: MessageName.EmitEvent,
           event,
         });
       },
+      // @ts-ignore
+      ...OPTIONS,
       ...config,
     }) || null;
   postMessage({

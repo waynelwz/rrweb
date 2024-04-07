@@ -1,6 +1,6 @@
 import Browser, { Storage } from 'webextension-polyfill';
 import { nanoid } from 'nanoid';
-import type { eventWithTime } from '@rrweb/types';
+import { EventType, IncrementalSource, type eventWithTime } from '@rrweb/types';
 import {
   LocalData,
   LocalDataKey,
@@ -14,8 +14,40 @@ import {
 } from '~/types';
 import Channel from '~/utils/channel';
 import { isInCrossOriginIFrame } from '~/utils';
+import html2canvas from 'html2canvas';
 
 const channel = new Channel();
+
+function isUserInteraction(event: eventWithTime): boolean {
+  if (event.type !== EventType.IncrementalSnapshot) {
+    return false;
+  }
+  return (
+    event.data.source > IncrementalSource.Mutation &&
+    event.data.source <= IncrementalSource.Input
+  );
+}
+
+const capture = (event: MessageEvent) => {
+  html2canvas(document.body, {
+    x: window.scrollX,
+    y: window.scrollY,
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }).then((canvas) => {
+    var img = canvas.toDataURL('image/png');
+    var imgEl = document.createElement('img');
+    imgEl.src = img;
+    document.body.appendChild(imgEl);
+  });
+
+  // window.postMessage(
+  //   {
+  //     message: MessageName.RecordScriptReady,
+  //   },
+  //   location.origin,
+  // );
+};
 
 void (() => {
   window.addEventListener(
@@ -28,7 +60,7 @@ void (() => {
       // console.log('content message', event.data);
       if (event.source !== window) return;
       // * note by lwz disable auto record
-      if (event.data.message === MessageName.RecordScriptReady) doRecord();
+      // if (event.data.message === MessageName.RecordScriptReady) doRecord();
     },
   );
   if (isInCrossOriginIFrame()) {
@@ -118,6 +150,9 @@ async function initMainPage() {
           }
       >,
     ) => {
+      if (event.data.event?.type !== 3)
+        console.log('content message', event.data, event.data.event?.type);
+
       if (event.source !== window) return;
       else if (
         event.data.message === MessageName.RecordStarted &&
@@ -135,8 +170,22 @@ async function initMainPage() {
         };
         newData.events = bufferedEvents.concat(data.events);
         stopResponseCb(newData);
-      } else if (event.data.message === MessageName.EmitEvent)
-        newEvents.push((event.data as EmitEventMessage).event);
+      } else if (event.data.message === MessageName.EmitEvent) {
+        startResponseCb(event.data);
+        // newEvents.push((event.data as EmitEventMessage).event);
+
+        const e = event.data.event;
+        if (e.data.source > 2 && e.data.source < 8) {
+          console.log(e.data);
+        }
+        if (e.data.source === 5) {
+          console.log(e.data);
+          // capture(e);
+          setTimeout(() => {
+            capture(e);
+          }, 0);
+        }
+      }
     },
   );
 

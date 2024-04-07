@@ -128,6 +128,16 @@ void (async () => {
         console.error(err);
       });
   });
+
+  // ！ by lwz chrome only
+  chrome?.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: true })
+    .catch((error: any) => console.error(error));
+
+  // let thatPanel = Browser.runtime.getURL('../panel/index.html');
+  // console.log(thatPanel);
+
+  console.log(chrome);
 })();
 
 /**

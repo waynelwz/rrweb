@@ -51,7 +51,6 @@ export default defineConfig({
   // Add the webExtension plugin
   plugins: [
     react(),
-    // @ts-ignore
     webExtension({
       // A function to generate manifest file dynamically.
       manifest: () => {
@@ -68,7 +67,7 @@ export default defineConfig({
           v3: ManifestBase;
         };
         const ManifestVersion =
-          process.env.TARGET_BROWSER === 'chrome' && isProduction ? 'v3' : 'v2';
+          process.env.TARGET_BROWSER === 'chrome' && isProduction ? 'v3' : 'v3';
         const BrowserName =
           process.env.TARGET_BROWSER === 'chrome' ? 'chrome' : 'firefox';
         const commonManifest = originalManifest.common;
@@ -83,6 +82,9 @@ export default defineConfig({
           originalManifest[ManifestVersion].common,
           originalManifest[ManifestVersion][BrowserName],
         );
+
+        console.log('manifest', manifest);
+
         return manifest;
       },
       assets: 'assets',
@@ -91,7 +93,11 @@ export default defineConfig({
         startUrl: ['github.com/rrweb-io/rrweb'],
         watchIgnored: ['*.md', '*.log'],
       },
-      additionalInputs: ['pages/index.html', 'content/inject.ts'],
+      additionalInputs: [
+        'pages/index.html',
+        'content/inject.ts',
+        'panel/index.html',
+      ],
     }),
     // https://github.com/aklinker1/vite-plugin-web-extension/issues/50#issuecomment-1317922947
     // transfer inject.ts to iife format to avoid error

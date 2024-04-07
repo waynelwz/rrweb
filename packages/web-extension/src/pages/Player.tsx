@@ -57,10 +57,21 @@ export default function Player() {
 
         const b = playerElRef.current.querySelector('.rr-player iframe');
 
-        console.log(b, b?.contentDocument?.body);
+        console.log(b, b?.contentWindow?.document.body);
+        console.log(b, b?.contentDocument);
 
-        html2canvas(b).then((canvas) => {
+        html2canvas(b?.contentDocument?.body, {
+          allowTaint: true,
+          logging: true,
+          debug: true,
+          useCORS: true,
+        }).then((canvas) => {
           document.body.appendChild(canvas);
+
+          const base64image = canvas.toDataURL('image/png');
+          const img = document.createElement('img');
+          img.src = base64image;
+          document.body.appendChild(img);
         });
       })
       .catch((err) => {
